@@ -50,6 +50,7 @@ ROOT_DIR=${LB_MODE}-live
 mv binary ${ROOT_DIR}
 
 mkdir binary.tmp
+mkdir -p tftpboot
 mv ${ROOT_DIR} tftpboot binary.tmp
 cd binary.tmp
 
