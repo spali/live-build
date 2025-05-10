@@ -41,7 +41,7 @@ case "${_ACTION}" in
 		mkdir -p chroot/sys
 
 		# Mounting /sys
-		mount -t sysfs -o x-gvfs-hide sysfs-live chroot/sys
+		mount -t sysfs -o x-gvfs-hide sysfs-live chroot/sys || mount -o rbind /sys chroot/sys
 
 		# Creating stage file
 		Create_stagefile
@@ -63,7 +63,7 @@ case "${_ACTION}" in
 		fi
 
 		# Unmounting /sys
-		if [ -e chroot/sys/class ]
+		if mountpoint -q chroot/sys
 		then
 			umount chroot/sys
 		fi
