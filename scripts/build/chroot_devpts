@@ -43,6 +43,16 @@ case "${_ACTION}" in
 		# Mounting /dev/pts
 		mount -t devpts -o gid=5,mode=620,x-gvfs-hide devpts-live chroot/dev/pts || true
 
+    for dev in null zero full random urandom tty console; do
+      # nothing to be done if character device exists
+      test -c "chroot/dev/$dev" && continue
+      # cannot bind-mount if device does not exist on the outside
+      test -e "/dev/$dev" || continue
+      # create an empty file if neccessary
+      test -e "chroot/dev/$dev" || touch "chroot/dev/$dev"
+      mount -o bind "/dev/$dev" "chroot/dev/$dev"
+    done
+
 		# Creating stage file
 		Create_stagefile
 		;;
@@ -63,6 +73,11 @@ case "${_ACTION}" in
 		else
 			umount -f chroot/dev/pts > /dev/null 2>&1 || true
 		fi
+
+    for dev in null zero full random urandom tty console; do
+      mountpoint -q "chroot/dev/$dev" || continue
+      umount "chroot/dev/$dev"
+    done
 
 		# Removing stage file
 		Remove_stagefile
