@@ -769,9 +769,10 @@ EOF
 				fi
 			done
 		done
-
-		LC_ALL=C sort < Contents-firmware.unsorted > Contents-firmware
-		rm -f Contents-firmware.unsorted
+		if [ -e Contents-firmware.unsorted ]; then
+			LC_ALL=C sort < Contents-firmware.unsorted > Contents-firmware
+			rm -f Contents-firmware.unsorted
+		fi
 		cd "${OLDPWD}"
 	fi
 
