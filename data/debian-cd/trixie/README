@@ -1,2 +1,4 @@
 This is a manual copy of the exclude lists is debian-cd/data
 https://salsa.debian.org/images-team/debian-cd
+
+Local modification: udeb_exclude does not contain apt-mirror-setup
