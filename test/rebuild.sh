@@ -668,21 +668,13 @@ EOFHOOK
 
 # For oldstable and stable use the same boot splash screen as the Debian installer
 case "$DEBIAN_VERSION" in
-"bullseye"|"oldstable")
-	mkdir -p config/bootloaders
-	wget --quiet https://salsa.debian.org/installer-team/debian-installer/-/raw/master/build/boot/artwork/11-homeworld/homeworld.svg -O config/bootloaders/splash.svg
-	mkdir -p config/bootloaders/grub-pc
-	# Use the old resolution of 640x480 for grub
-	ln -s ../../isolinux/splash.png config/bootloaders/grub-pc/splash.png
-	;;
-"bookworm"|"stable")
+"bookworm"|"oldstable")
 	mkdir -p config/bootloaders
 	wget --quiet https://salsa.debian.org/installer-team/debian-installer/-/raw/master/build/boot/artwork/12-emerald/emerald.svg -O config/bootloaders/splash.svg
 	;;
-"trixie"|"testing")
-	# Trixie artwork: https://wiki.debian.org/DebianArt/Themes/Ceratopsian
+"trixie"|"stable")
 	mkdir -p config/bootloaders
-	wget --quiet https://raw.githubusercontent.com/pccouper/trixie/refs/heads/main/bootscreen/grub/grub.svg -O config/bootloaders/splash.svg
+	wget --quiet https://salsa.debian.org/installer-team/debian-installer/-/raw/master/build/boot/artwork/13-ceratopsian/ceratopsian.svg -O config/bootloaders/splash.svg
 	;;
 *)
 	# Use the default 'under construction' image
