@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ## live-build(7) - System Build Scripts
-## Copyright (C) 2016-2020 The Debian Live team
+## Copyright (C) 2016-2025 The Debian Live team
 ## Copyright (C) 2006-2015 Daniel Baumann <mail@daniel-baumann.ch>
 ##
 ## This program comes with ABSOLUTELY NO WARRANTY; for details see COPYING.
@@ -43,15 +43,21 @@ case "${_ACTION}" in
 		# Mounting /dev/pts
 		mount -t devpts -o gid=5,mode=620,x-gvfs-hide devpts-live chroot/dev/pts || true
 
-    for dev in null zero full random urandom tty console; do
-      # nothing to be done if character device exists
-      test -c "chroot/dev/$dev" && continue
-      # cannot bind-mount if device does not exist on the outside
-      test -e "/dev/$dev" || continue
-      # create an empty file if neccessary
-      test -e "chroot/dev/$dev" || touch "chroot/dev/$dev"
-      mount -o bind "/dev/$dev" "chroot/dev/$dev"
-    done
+		# Bind-mount the character devices
+		for dev in null zero full random urandom tty console
+		do
+			# 1. nothing to be done if character device already exists
+			# 2. cannot bind-mount if device does not exist on the outside
+			if [ ! -c "chroot/dev/$dev" -o ! -e "/dev/$dev" ]
+			then
+				# Create an empty file if neccessary
+				if [ ! -e "chroot/dev/$dev" ]
+				then
+					touch "chroot/dev/$dev"
+				fi
+				mount -o bind "/dev/$dev" "chroot/dev/$dev"
+			fi
+		done
 
 		# Creating stage file
 		Create_stagefile
@@ -74,10 +80,14 @@ case "${_ACTION}" in
 			umount -f chroot/dev/pts > /dev/null 2>&1 || true
 		fi
 
-    for dev in null zero full random urandom tty console; do
-      mountpoint -q "chroot/dev/$dev" || continue
-      umount "chroot/dev/$dev"
-    done
+		# Unmount the character devices
+		for dev in null zero full random urandom tty console
+		do
+			if mountpoint -q "chroot/dev/$dev"
+			then
+				umount "chroot/dev/$dev"
+			fi
+		done
 
 		# Removing stage file
 		Remove_stagefile
