@@ -672,11 +672,11 @@ EOFHOOK
 case "$DEBIAN_VERSION" in
 "bookworm"|"oldstable")
 	mkdir -p config/bootloaders
-	wget --quiet https://salsa.debian.org/installer-team/debian-installer/-/raw/master/build/boot/artwork/12-emerald/emerald.svg -O config/bootloaders/splash.svg
+	wget --quiet https://salsa.debian.org/installer-team/debian-installer/-/raw/698311cb81e26512a86a7b94682367cd047f491c/build/boot/artwork/12-emerald/emerald.svg -O config/bootloaders/splash.svg
 	;;
 "trixie"|"stable")
 	mkdir -p config/bootloaders
-	wget --quiet https://salsa.debian.org/installer-team/debian-installer/-/raw/master/build/boot/artwork/13-ceratopsian/ceratopsian.svg -O config/bootloaders/splash.svg
+	wget --quiet https://salsa.debian.org/installer-team/debian-installer/-/raw/trixie/build/boot/artwork/13-ceratopsian/ceratopsian.svg -O config/bootloaders/splash.svg
 	;;
 *)
 	# Use the default 'under construction' image
