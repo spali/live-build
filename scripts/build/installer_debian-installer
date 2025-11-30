@@ -59,6 +59,7 @@ esac
 
 # Checking depends
 Check_package host /usr/bin/wget wget
+Check_package chroot /usr/bin/file file
 Check_package chroot /usr/bin/apt-ftparchive apt-utils
 # Ensure availability of dep11 data
 Check_package chroot /etc/apt/apt.conf.d/50appstream appstream
@@ -410,7 +411,9 @@ Download_file "${DESTDIR}"/"${INITRD_DI}" ${URL}/${DI_REMOTE_BASE}/initrd.gz
 # PE32+ executable (EFI application) RISC-V 64-bit (stripped to external PDB), for MS Windows, 2 sections
 if [ "${LB_ARCHITECTURE}" = "amd64" ]
 then
-	_LINUX_KERNEL_ABI=$(file --brief "${DESTDIR}"/"${VMLINUZ_DI}" | cut -f 8 -d " " | sed -e "s/-${LB_ARCHITECTURE}//")
+	cp "${DESTDIR}"/"${VMLINUZ_DI}" chroot/kernel-image
+	_LINUX_KERNEL_ABI=$(Chroot chroot file --brief /kernel-image | cut -f 8 -d " " | sed -e "s/-${LB_ARCHITECTURE}//")
+	rm chroot/kernel-image
 else
 	_LINUX_KERNEL_ABI=""
 fi
@@ -714,7 +717,7 @@ EOF
 		mkdir -p ${_FW_DEP11_DIR}
 		echo "These files help Debian Installer detect helpful firmware packages (via hw-detect)." > ${_FW_DEP11_DIR}/README.txt
 
-		_LINUX_KERNEL_PACKAGE=$(dpkg-query --showformat "\${db:Status-Abbrev} \${Package}\n" --show linux-image-* | grep "^ii" | grep -v "linux-image-${LB_ARCHITECTURE}" | sort | tail -1 | awk '{ print $2 }')
+		_LINUX_KERNEL_PACKAGE=$(dpkg-query --admindir=../../chroot/chroot/var/lib/dpkg --showformat "\${db:Status-Abbrev} \${Package}\n" --show linux-image-* | grep "^ii" | grep -v "linux-image-${LB_ARCHITECTURE}" | sort | tail -1 | awk '{ print $2 }')
 		for _PACKAGE in ${DI_FIRMWARE_PACKAGES}
 		do
 			for _FILE in $(find ../pool -name "${_PACKAGE}_*.deb")
@@ -736,7 +739,7 @@ EOF
 						then
 							Echo_warning "Could not extract the current kernel version, skipping firmware pattern for ${_PACKAGE}"
 						else
-							for _ALIAS in $(dpkg-query -L ${_LINUX_KERNEL_PACKAGE} | egrep '(kernel/sound/soc/sof/.*\.ko(.xz)?|/snd-soc-.*sof.*\.ko(.xz)?)$'); do /usr/sbin/modinfo ${_ALIAS} | awk '/^alias:/ { print $2 }'; done | sort -u | awk '{ gsub(/[*]/, ".*", $1); printf "^%s$\n", $1 }' > ${_FW_DEP11_DIR}/${_PACKAGE}.patterns
+							for _ALIAS in $(dpkg-query --admindir=../../chroot/chroot/var/lib/dpkg -L ${_LINUX_KERNEL_PACKAGE} | egrep '(kernel/sound/soc/sof/.*\.ko(.xz)?|/snd-soc-.*sof.*\.ko(.xz)?)$'); do Chroot ../../chroot modinfo chroot/${_ALIAS} | awk '/^alias:/ { print $2 }'; done | sort -u | awk '{ gsub(/[*]/, ".*", $1); printf "^%s$\n", $1 }' > ${_FW_DEP11_DIR}/${_PACKAGE}.patterns
 						fi
 					elif [ "${_PACKAGE}" = "firmware-intel-sound" ]
 					then
@@ -744,7 +747,7 @@ EOF
 						then
 							Echo_warning "Could not extract the current kernel version, skipping firmware pattern for ${_PACKAGE}"
 						else
-							for _ALIAS in $(dpkg-query -L ${_LINUX_KERNEL_PACKAGE} | egrep 'kernel/sound/soc/intel/.*\.ko(.xz)?$'); do /usr/sbin/modinfo ${_ALIAS} | awk '/^alias:/ { print $2 }'; done | sort -u | awk '{ gsub(/[*]/, ".*", $1); printf "^%s$\n", $1 }' > ${_FW_DEP11_DIR}/${_PACKAGE}.patterns
+							for _ALIAS in $(dpkg-query --admindir=../../chroot/chroot/var/lib/dpkg -L ${_LINUX_KERNEL_PACKAGE} | egrep 'kernel/sound/soc/intel/.*\.ko(.xz)?$'); do Chroot ../../chroot modinfo chroot/${_ALIAS} | awk '/^alias:/ { print $2 }'; done | sort -u | awk '{ gsub(/[*]/, ".*", $1); printf "^%s$\n", $1 }' > ${_FW_DEP11_DIR}/${_PACKAGE}.patterns
 						fi
 					elif [ -n "${_COMPONENT}" ]
 					then
