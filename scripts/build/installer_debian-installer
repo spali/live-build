@@ -477,6 +477,7 @@ then
 			else
 				# Starting in forky, use fuse3 instead
 				if [ $(Check_package_available "libfuse2") -eq 1 ]
+				then
 					DI_REQ_PACKAGES="${DI_REQ_PACKAGES} libfuse2"
 				fi
 			fi
