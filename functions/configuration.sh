@@ -787,6 +787,16 @@ Validate_config_permitted_values ()
 		exit 1
 	fi
 
+	if [ $(printf "%s" "${LB_MIRROR_DEBIAN_INSTALLER}" | tail -c 1) != "/" ]; then
+		Echo_error "The URL for --mirror-debian-installer must end with a /."
+		exit 1
+	fi
+
+	if [ $(printf "%s" "${LB_PARENT_MIRROR_DEBIAN_INSTALLER}" | tail -c 1) != "/" ]; then
+		Echo_error "The URL for --parent-mirror-debian-installer must end with a /."
+		exit 1
+	fi
+
 	if ! In_list "${LB_SOURCE_IMAGES}" iso netboot tar hdd; then
 		Echo_error "You have specified an invalid value for LB_SOURCE_IMAGES (--source-images)."
 		exit 1
