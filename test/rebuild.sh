@@ -46,7 +46,7 @@ Debian version: ${DEBIAN_VERSION}
 Use latest snapshot: ${BUILD_LATEST_DESC}
 Installer origin: ${INSTALLER_ORIGIN}
 Snapshot timestamp: ${SNAPSHOT_TIMESTAMP}
-Snapshot epoch: ${SOURCE_DATE_EPOCH}
+Applied timestamp:  $(date --date @${SOURCE_DATE_EPOCH} --utc +%Y%m%dT%H%M%SZ) ${SOURCE_DATE_EPOCH}
 Live-build override: ${LIVE_BUILD_OVERRIDE}
 Live-build path: ${LIVE_BUILD}
 Build result: ${BUILD_RESULT}
@@ -284,6 +284,8 @@ parse_commandline_arguments() {
 		"snapshot")
 			BUILD_LATEST="snapshot"
 			BUILD_LATEST_DESC="yes, from the snapshot server"
+			# Make the image reproducible, by faking the invocation of this script
+			REBUILD_COMMANDLINE=$(echo ${REBUILD_COMMANDLINE} | sed -e 's/--timestamp snapshot/--timestamp archive/')
 			;;
 		*)
 			SNAPSHOT_TIMESTAMP=${TIMESTAMP}
@@ -370,7 +372,12 @@ get_snapshot_from_snapshot_debian_org() {
 	# Output:
 	# 20220723T143345Z
 	#
-	SNAPSHOT_TIMESTAMP=$(cat latest | awk '/^Date:/ { print substr($0, 7) }' | xargs -I this_date date --utc --date "this_date" +%Y%m%dT%H%M%SZ)
+	# Set all timestamps in the image to this timestamp
+	export SOURCE_DATE_EPOCH=$(cat latest | awk '/^Date:/ { print substr($0, 7) }' | xargs -I this_date date --utc --date "this_date" +%s)
+	rm latest
+	# Use the closest (next) snapshot timestamp. Be optimistic and assume that within 24 hours a snapshot was made
+	wget ${WGET_OPTIONS} http://snapshot.debian.org/mr/timestamp/?after=$(date --utc --date @${SOURCE_DATE_EPOCH} +%Y%m%dT%H%M%SZ)\&before=$(date --utc --date "$(date --utc --date @${SOURCE_DATE_EPOCH} --iso-8601=seconds) next day" +%Y%m%dT%H%M%SZ)\&archive=debian --output-document latest
+	SNAPSHOT_TIMESTAMP=$(cat latest | jq -r .result.debian[0])
 	rm latest
 }
 
@@ -425,13 +432,13 @@ case ${BUILD_LATEST} in
 "snapshot")
 	# Use the timestamp of the latest mirror snapshot
 	get_snapshot_from_snapshot_debian_org
-	MIRROR=http://snapshot.debian.org/archive/debian/${SNAPSHOT_TIMESTAMP}
-	MIRROR_BINARY="[check-valid-until=no] ${MIRROR}"
+	MIRROR=http://snapshot.debian.org/archive/debian/${SNAPSHOT_TIMESTAMP}/
+	MIRROR_BINARY=http://deb.debian.org/debian/
 	MODIFY_APT_OPTIONS=1
 	;;
 "no")
 	# The value of SNAPSHOT_TIMESTAMP was provided on the command line
-	MIRROR=http://snapshot.debian.org/archive/debian/${SNAPSHOT_TIMESTAMP}
+	MIRROR=http://snapshot.debian.org/archive/debian/${SNAPSHOT_TIMESTAMP}/
 	MIRROR_BINARY="[check-valid-until=no] ${MIRROR}"
 	MODIFY_APT_OPTIONS=1
 	;;
@@ -441,7 +448,10 @@ case ${BUILD_LATEST} in
 	;;
 esac
 # Convert SNAPSHOT_TIMESTAMP to Unix time (insert suitable formatting first)
-export SOURCE_DATE_EPOCH=$(date -d $(echo ${SNAPSHOT_TIMESTAMP} | awk '{ printf "%s-%s-%sT%s:%s:%sZ", substr($0,1,4), substr($0,5,2), substr($0,7,2), substr($0,10,2), substr($0,12,2), substr($0,14,2) }') +%s)
+if [ -z "${SOURCE_DATE_EPOCH}" ]
+then
+	export SOURCE_DATE_EPOCH=$(date -d $(echo ${SNAPSHOT_TIMESTAMP} | awk '{ printf "%s-%s-%sT%s:%s:%sZ", substr($0,1,4), substr($0,5,2), substr($0,7,2), substr($0,10,2), substr($0,12,2), substr($0,14,2) }') +%s)
+fi
 output_echo "Info: using the snapshot from ${SOURCE_DATE_EPOCH} (${SNAPSHOT_TIMESTAMP})"
 
 # Use the code from the actual timestamp
