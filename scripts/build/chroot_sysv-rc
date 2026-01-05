@@ -73,6 +73,7 @@ EOF
 		# Remove the live-build alternative for policy-rc.d
 		Chroot chroot update-alternatives --remove policy-rc.d "${policy_rcd_target_file}"
 		rm -f chroot/usr/sbin/policy-rc.d.live-build
+		truncate --no-create --size=0 chroot/var/log/alternatives.log
 
 		# Removing stage file
 		Remove_stagefile
