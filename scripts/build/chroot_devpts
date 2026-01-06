@@ -48,7 +48,7 @@ case "${_ACTION}" in
 		do
 			# 1. nothing to be done if character device already exists
 			# 2. cannot bind-mount if device does not exist on the outside
-			if [ ! -c "chroot/dev/$dev" -o ! -e "/dev/$dev" ]
+			if [ ! -c "chroot/dev/$dev" -a -e "/dev/$dev" ]
 			then
 				# Create an empty file if neccessary
 				if [ ! -e "chroot/dev/$dev" ]
