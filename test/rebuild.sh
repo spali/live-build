@@ -432,13 +432,13 @@ case ${BUILD_LATEST} in
 "snapshot")
 	# Use the timestamp of the latest mirror snapshot
 	get_snapshot_from_snapshot_debian_org
-	MIRROR=http://snapshot.debian.org/archive/debian/${SNAPSHOT_TIMESTAMP}/
+	MIRROR=http://snapshot.debian.org/archive/debian/${SNAPSHOT_TIMESTAMP}
 	MIRROR_BINARY=http://deb.debian.org/debian/
 	MODIFY_APT_OPTIONS=1
 	;;
 "no")
 	# The value of SNAPSHOT_TIMESTAMP was provided on the command line
-	MIRROR=http://snapshot.debian.org/archive/debian/${SNAPSHOT_TIMESTAMP}/
+	MIRROR=http://snapshot.debian.org/archive/debian/${SNAPSHOT_TIMESTAMP}
 	MIRROR_BINARY="[check-valid-until=no] ${MIRROR}"
 	MODIFY_APT_OPTIONS=1
 	;;

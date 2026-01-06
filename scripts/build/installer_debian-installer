@@ -252,7 +252,7 @@ case "${LB_DERIVATIVE}" in
 
 			URL="${DAILY_DI_URL}"
 		else
-			URL="${LB_MIRROR_DEBIAN_INSTALLER}dists/${LB_DEBIAN_INSTALLER_DISTRIBUTION}/main/installer-${LB_ARCHITECTURE}/current/images"
+			URL="${LB_MIRROR_DEBIAN_INSTALLER}/dists/${LB_DEBIAN_INSTALLER_DISTRIBUTION}/main/installer-${LB_ARCHITECTURE}/current/images"
 		fi
 		;;
 
@@ -392,7 +392,7 @@ EOF
 
 			URL="${DAILY_DI_URL}"
 		else
-			URL="${LB_PARENT_MIRROR_DEBIAN_INSTALLER}dists/${LB_PARENT_DEBIAN_INSTALLER_DISTRIBUTION}/main/installer-${LB_ARCHITECTURE}/current/images"
+			URL="${LB_PARENT_MIRROR_DEBIAN_INSTALLER}/dists/${LB_PARENT_DEBIAN_INSTALLER_DISTRIBUTION}/main/installer-${LB_ARCHITECTURE}/current/images"
 		fi
 esac
 
@@ -770,7 +770,11 @@ EOF
 						# This mirrors the functionality from debian-cd (generate_firmware_patterns):
 						# - Surround by ^ $
 						# - Replace * by .*
-						_COMPONENTS_DEP11_FILE=$(echo "${LB_PARENT_MIRROR_DEBIAN_INSTALLER}dists/${LB_PARENT_DEBIAN_INSTALLER_DISTRIBUTION}/${_COMPONENT}/dep11/Components-${LB_ARCHITECTURE}.yml.gz" | sed -E 's|https?://||g' | sed 's|/|_|g')
+						_EXTRA_SLASH=""
+						if [ $(printf "%s" "${LB_PARENT_MIRROR_DEBIAN_INSTALLER}" | tail -c 1) != "/" ]; then
+							_EXTRA_SLASH="/"
+						fi
+						_COMPONENTS_DEP11_FILE=$(echo "${LB_PARENT_MIRROR_DEBIAN_INSTALLER}${_EXTRA_SLASH}dists/${LB_PARENT_DEBIAN_INSTALLER_DISTRIBUTION}/${_COMPONENT}/dep11/Components-${LB_ARCHITECTURE}.yml.gz" | sed -E 's|https?://||g' | sed 's|/|_|g')
 						if [ -e  ../../chroot/var/lib/apt/lists/${_COMPONENTS_DEP11_FILE} ]
 						then
 							zcat ../../chroot/var/lib/apt/lists/${_COMPONENTS_DEP11_FILE} | sed -e '/^Package: '${_PACKAGE}'$/,/^---$/p;d' | awk 'BEGIN { modalias_found = 0 } /  modaliases:/ { modalias_found = 1; next } /  [^-]/ { modalias_found = 0; } modalias_found==1 && $2 != "" { gsub(/[*]/, ".*", $2); printf "^%s$\n", $2 }' > ${_FW_DEP11_DIR}/${_PACKAGE}.patterns
