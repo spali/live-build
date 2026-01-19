@@ -459,7 +459,13 @@ output_echo "Info: using the snapshot from ${SOURCE_DATE_EPOCH} (${SNAPSHOT_TIME
 if [ ${LIVE_BUILD_OVERRIDE} -eq 0 ]; then
 	pushd ${LIVE_BUILD} >/dev/null
 	git pull ${GIT_OPTIONS}
-	git checkout $(git rev-list -n 1 --min-age=${SOURCE_DATE_EPOCH} HEAD) ${GIT_OPTIONS}
+	if [ "${DEBIAN_VERSION}" = "bookworm" -a ${SOURCE_DATE_EPOCH} -eq 1768084115 ]
+	then
+		# Use the hotfix (f3231cedc183f236ae3f9783ed58268d760fc9cc) for bookworm 12.13
+		git checkout $(git rev-list -n 1 --min-age=1768807644 HEAD) ${GIT_OPTIONS}
+	else
+		git checkout $(git rev-list -n 1 --min-age=${SOURCE_DATE_EPOCH} HEAD) ${GIT_OPTIONS}
+	fi
 	git clean -Xdf ${GIT_OPTIONS}
 	output_echo "Info: using live-build from git version $(git log -n 1 --pretty=format:%H_%aI)"
 	popd >/dev/null
