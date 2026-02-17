@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+
+# Normalise the timestamp of the packages in the pool directories
+# Use the timestamp of control.tar.xz, which should be the timestamp of the latest entry in debian/changelog
+for FILE in $(find pool -type f) $(find pool-udeb -type f)
+do
+	if [ ! -e "${FILE}" ]; then
+		break # File not found?
+	fi
+
+	ar xof "${FILE}" control.tar.xz || true
+	if [ -e control.tar.xz ]
+	then
+		touch --reference=control.tar.xz "${FILE}"
+		rm -f control.tar.xz
+	fi
+done
+
+# Normalise the timestamp of the pool directories, to match the newest content
+DIRECTORIES="$(find pool -type d) $(find pool-udeb -type d)"
+DIRECTORIES="$(echo ${DIRECTORIES} | tr " " "\n" | LC_ALL=C sort -r)"
+for DIRECTORY in ${DIRECTORIES}
+do
+	# The directory is guaranteed to be non-empty
+	touch --reference="${DIRECTORY}/$(ls -t -1 ${DIRECTORY} | head -n1)" ${DIRECTORY}
+done
