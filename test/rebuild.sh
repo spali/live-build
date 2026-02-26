@@ -189,6 +189,10 @@ parse_commandline_arguments() {
 		INSTALLER="live"
 		PACKAGES="live-task-kde spice-vdagent"
 		;;
+	"lomiri")
+		INSTALLER="live"
+		PACKAGES="task-lomiri-desktop live-task-base calamares-settings-debian live-task-localisation live-task-localisation-desktop plymouth spice-vdagent spice-webdavd"
+		;;
 	"lxde")
 		INSTALLER="live"
 		PACKAGES="live-task-lxde spice-vdagent"
