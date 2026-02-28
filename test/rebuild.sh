@@ -191,7 +191,10 @@ parse_commandline_arguments() {
 		;;
 	"lomiri")
 		INSTALLER="live"
+		# TODO: This package list is the same as for 'live-task-lomiri'
+		# see https://salsa.debian.org/live-team/live-tasks/-/merge_requests/14
 		PACKAGES="task-lomiri-desktop live-task-base calamares-settings-debian live-task-localisation live-task-localisation-desktop plymouth spice-vdagent spice-webdavd"
+		#PACKAGES="live-task-lomiri"
 		;;
 	"lxde")
 		INSTALLER="live"
