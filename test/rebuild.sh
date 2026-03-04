@@ -184,6 +184,89 @@ parse_commandline_arguments() {
 	"gnome")
 		INSTALLER="live"
 		PACKAGES="live-task-gnome spice-vdagent"
+
+		# The following changes are prepared for trixie only
+		if [ "${DEBIAN_VERSION}" = "trixie" ]
+		then
+			# https://salsa.debian.org/live-team/live-tasks/-/merge_requests/12
+			PACKAGES="${PACKAGES} spice-webdavd"
+
+			# https://salsa.debian.org/installer-team/tasksel/-/merge_requests/52
+			# task-japanese-gnome-desktop
+			PACKAGES="${PACKAGES} thunderbird- thunderbird-l10n-ja-"
+
+			# https://salsa.debian.org/live-team/live-build/-/merge_requests/467
+			# task-japanese-desktop (via anthy-common)
+			PACKAGES="${PACKAGES} kasumi-"
+
+			# https://salsa.debian.org/live-team/live-tasks/-/merge_requests/9
+			# task-italian
+			PACKAGES="${PACKAGES} debian-reference-it-"
+			# task-spanish
+			PACKAGES="${PACKAGES} debian-reference-es-"
+			# calamares-settings-debian (via kio6)
+			PACKAGES="${PACKAGES} systemsettings-"
+			# task-chinese-s-desktop
+			PACKAGES="${PACKAGES} goldendict-ng-"
+			# task-japanese-desktop: uim-gtk2.0- (via uim)
+			PACKAGES="${PACKAGES} uim-gtk2.0-"
+
+			# https://salsa.debian.org/installer-team/tasksel/-/merge_requests/54
+			# task-hebrew
+			PACKAGES="${PACKAGES} mlterm-"
+			# task-hebrew-gnome-desktop
+			PACKAGES="${PACKAGES} hdate-applet-"
+
+			# https://salsa.debian.org/installer-team/tasksel/-/merge_requests/55
+			# task-thai-desktop
+			PACKAGES="${PACKAGES} xiterm+thai-"
+
+			# Replace fcitx fcitx5
+			# https://salsa.debian.org/installer-team/tasksel/-/merge_requests/56
+			#
+			# task-telugu-desktop task-malayalam-desktop task-chinese-s-desktop
+			PACKAGES="${PACKAGES} fcitx5-"
+			# task-chinese-t-desktop
+			PACKAGES="${PACKAGES} fcitx- fcitx-frontend-all-"
+			# task-kannada-desktop
+			PACKAGES="${PACKAGES} fcitx-m17n-"
+			# task-kannada-desktop, task-amharic-desktop
+			PACKAGES="${PACKAGES} fcitx-config-gtk-"
+			# task-amharic-desktop
+			PACKAGES="${PACKAGES} fcitx-frontend-gtk2- fcitx-frontend-gtk3-"
+			# task-malayalam-gnome-desktop
+			PACKAGES="${PACKAGES} fcitx5-frontend-gtk2-"
+			# task-malayalam-gnome-desktop task-telugu-gnome-desktop
+			PACKAGES="${PACKAGES} fcitx5-frontend-gtk3- fcitx5-frontend-gtk4-"
+			# task-telugu-desktop
+			PACKAGES="${PACKAGES} fcitx5-m17n-"
+			#
+			# task-amharic-desktop
+			PACKAGES="${PACKAGES} ibus-m17n im-config"
+			# task-chinese-s-desktop
+			PACKAGES="${PACKAGES} ibus-libpinyin"
+			# task-chinese-t-desktop
+			PACKAGES="${PACKAGES} ibus-chewing"
+			# Also in https://salsa.debian.org/live-team/live-tasks/-/merge_requests/13
+			# task-japanese-desktop (ibus-mozc | ibus-anthy) -> use both
+			PACKAGES="${PACKAGES} ibus-anthy ibus-mozc"
+
+			# https://salsa.debian.org/installer-team/tasksel/-/merge_requests/42
+			# task-japanese
+			PACKAGES="${PACKAGES} manpages-ja-dev-"
+			# task-polish
+			PACKAGES="${PACKAGES} manpages-pl-dev-"
+
+			# https://salsa.debian.org/installer-team/tasksel/-/merge_requests/53
+			# task-italian
+			PACKAGES="${PACKAGES} fortunes-it-"
+			# task-hungarian
+			PACKAGES="${PACKAGES} fortunes-debian-hints-"
+
+			# Other packaging tweaks
+			# task-italian
+			PACKAGES="${PACKAGES} maint-guide-it-"
+		fi
 		;;
 	"kde")
 		INSTALLER="live"
