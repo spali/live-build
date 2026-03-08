@@ -23,6 +23,7 @@
 # Coding convention: enforced by 'shfmt'
 
 DEBUG=false
+PREVIEW=false
 
 set -e
 set -o pipefail # see eg http://petereisentraut.blogspot.com/2010/11/pipefail.html
@@ -70,6 +71,7 @@ show_help() {
 	echo "--installer-origin:"
 	echo "    'git' (default): rebuild the installer from git"
 	echo "    'archive': take the installer from the Debian archive"
+	echo "--preview: Enable proposed-updates"
 	echo "--timestamp:"
 	echo "    'archive' (default): fetches the timestamp from the Debian archive"
 	echo "    'snapshot': fetches the latest timestamp from the snapshot server"
@@ -79,7 +81,7 @@ show_help() {
 parse_commandline_arguments() {
 
 	# In alphabetical order
-	local LONGOPTS="architecture:,configuration:,debian-version:,debian-version-number:,debug,disk-info,generate-source,help,installer-origin:,timestamp:,usage"
+	local LONGOPTS="architecture:,configuration:,debian-version:,debian-version-number:,debug,disk-info,generate-source,help,installer-origin:,preview,timestamp:,usage"
 
 	local ARGUMENTS
 	local ERR=0
@@ -141,6 +143,10 @@ parse_commandline_arguments() {
 				shift
 				INSTALLER_ORIGIN=$1
 				shift
+				;;
+			--preview)
+				shift
+				PREVIEW=true
 				;;
 			--timestamp)
 				shift
@@ -433,8 +439,10 @@ parse_commandline_arguments() {
 	echo "DISK_INFO = ${DISK_INFO}"
 }
 
-get_snapshot_from_archive() {
-	wget ${WGET_OPTIONS} http://deb.debian.org/debian/dists/${DEBIAN_VERSION}/InRelease --output-document latest
+extract_timestamp_from_url() {
+	local URL=$1
+	local FORMAT=$2
+	wget ${WGET_OPTIONS} ${URL} --output-document latest
 	#
 	# Extract the timestamp from the InRelease file
 	#
@@ -445,26 +453,33 @@ get_snapshot_from_archive() {
 	# Output:
 	# 20220723T143345Z
 	#
-	SNAPSHOT_TIMESTAMP=$(cat latest | awk '/^Date:/ { print substr($0, 7) }' | xargs -I this_date date --utc --date "this_date" +%Y%m%dT%H%M%SZ)
+	TIMESTAMP=$(cat latest | awk '/^Date:/ { print substr($0, 7) }' | xargs -I this_date date --utc --date "this_date" +${FORMAT})
 	rm latest
+}
+
+get_snapshot_from_archive() {
+	extract_timestamp_from_url http://deb.debian.org/debian/dists/${DEBIAN_VERSION}/InRelease %Y%m%dT%H%M%SZ
+	SNAPSHOT_TIMESTAMP=${TIMESTAMP}
+	if ${PREVIEW}; then
+		extract_timestamp_from_url http://deb.debian.org/debian/dists/${DEBIAN_VERSION}-proposed-updates/InRelease %Y%m%dT%H%M%SZ
+		if [[ ${TIMESTAMP} > ${SNAPSHOT_TIMESTAMP} ]]; then
+			SNAPSHOT_TIMESTAMP=${TIMESTAMP}
+		fi
+	fi
 }
 
 get_snapshot_from_snapshot_debian_org() {
 	# Pick the snapshot closest to 'now'
-	wget ${WGET_OPTIONS} http://snapshot.debian.org/archive/debian/$(date --utc +%Y%m%dT%H%M%SZ)/dists/${DEBIAN_VERSION}/InRelease --output-document latest
-	#
-	# Extract the timestamp from the InRelease file
-	#
-	# Input:
-	# ...
-	# Date: Sat, 23 Jul 2022 14:33:45 UTC
-	# ...
-	# Output:
-	# 20220723T143345Z
-	#
 	# Set all timestamps in the image to this timestamp
-	export SOURCE_DATE_EPOCH=$(cat latest | awk '/^Date:/ { print substr($0, 7) }' | xargs -I this_date date --utc --date "this_date" +%s)
-	rm latest
+	extract_timestamp_from_url http://snapshot.debian.org/archive/debian/$(date --utc +%Y%m%dT%H%M%SZ)/dists/${DEBIAN_VERSION}/InRelease %s
+	# Set all timestamps in the image to this timestamp
+	export SOURCE_DATE_EPOCH=${TIMESTAMP}
+	if ${PREVIEW}; then
+		extract_timestamp_from_url http://snapshot.debian.org/archive/debian/$(date --utc +%Y%m%dT%H%M%SZ)/dists/${DEBIAN_VERSION}-proposed-updates/InRelease %s
+		if [[ ${TIMESTAMP} > ${SOURCE_DATE_EPOCH} ]]; then
+			export SOURCE_DATE_EPOCH=${TIMESTAMP}
+		fi
+	fi
 	# Use the closest (next) snapshot timestamp. Be optimistic and assume that within 24 hours a snapshot was made
 	wget ${WGET_OPTIONS} http://snapshot.debian.org/mr/timestamp/?after=$(date --utc --date @${SOURCE_DATE_EPOCH} +%Y%m%dT%H%M%SZ)\&before=$(date --utc --date "$(date --utc --date @${SOURCE_DATE_EPOCH} --iso-8601=seconds) next day" +%Y%m%dT%H%M%SZ)\&archive=debian --output-document latest
 	SNAPSHOT_TIMESTAMP=$(cat latest | jq -r .result.debian[0])
@@ -568,6 +583,10 @@ if [ -d config ]; then
 	${SUDO} lb clean --purge
 	rm -fr config
 	rm -fr .build
+fi
+
+if ${PREVIEW}; then
+	GENERATE_SOURCE="${GENERATE_SOURCE} --proposed-updates true"
 fi
 
 # Configuration for the live image:
