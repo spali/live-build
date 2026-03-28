@@ -71,7 +71,7 @@ Restore_package_cache binary
 Install_packages
 
 # Retrieve dep11 data
-Chroot chroot "apt-get update"
+Chroot chroot "apt-get ${APT_OPTIONS} update"
 
 if [ "${_DEBUG}" = "true" ]
 then
@@ -852,7 +852,7 @@ EOF
 	cat > chroot/${UDEB_APT_TOPDIR}/get_udeb_list.sh <<-EOF
 		#!/bin/sh
 		export APT_CONFIG="/${UDEB_APT_TOPDIR}/apt.conf"
-		apt-get update
+		apt-get ${APT_OPTIONS} update
 		EOF
 
 	# Find all available udeb packages
