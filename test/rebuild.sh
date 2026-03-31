@@ -808,17 +808,6 @@ case "$DEBIAN_VERSION" in
 	;;
 esac
 
-# While waiting for #1130925, apply a quick fix
-if [ "$DEBIAN_VERSION" = "sid" ]; then
-	mkdir -p config/packages.binary
-	wget ${WGET_OPTIONS} https://people.debian.org/~rclobus/libatspi0-udeb_2.60.0-2.1_amd64.udeb --output-document config/packages.binary/libatspi0-udeb_2.60.0-2.1_amd64.udeb
-	wget ${WGET_OPTIONS} https://people.debian.org/~rclobus/libxres1-udeb_1.2.1-2_amd64.udeb --output-document config/packages.binary/libxres1-udeb_1.2.1-2_amd64.udeb
-fi
-# While waiting for #1132159, apply a quick fix
-if [ "$DEBIAN_VERSION" = "sid" ]; then
-	wget ${WGET_OPTIONS} https://people.debian.org/~rclobus/zlib1g-udeb_1.3.dfsg+really1.3.2-1local1_amd64.udeb --output-document config/packages.binary/zlib1g-udeb_1.3.dfsg+really1.3.2-1local1_amd64.udeb
-fi
-
 # Build the image
 output_echo "Running lb build."
 
