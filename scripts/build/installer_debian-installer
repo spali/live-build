@@ -313,6 +313,9 @@ find -maxdepth 1 -name *.deb | xargs apt-get --yes install
 sed -i -e '/^\\tVMLINUXZ=/s|VMLINUXZ=|if [ ! -e \$(TREE)/boot/vmlinuz ]; then \\\\\\n\\tVMLINUXZ=|' build/Makefile
 sed -i -e '/^\\t\\tmv -v \$\$VMLINUXZ/s|; \\\\|; \\\\\\n\\tfi \\\\|' build/Makefile
 
+# Disable the mknod command, this allows building with the unshare backend
+sed -i -e 's/mknod/#mknod/' build/Makefile
+
 # Build the installer
 cd build
 if [ "${_QUIET}" != "true" ]
