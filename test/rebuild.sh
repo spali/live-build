@@ -193,6 +193,9 @@ parse_commandline_arguments() {
 	"cinnamon")
 		INSTALLER="live"
 		PACKAGES="live-task-cinnamon spice-vdagent"
+		# Oops: libreoffice is not properly installed
+		#   enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"gnome")
 		INSTALLER="live"
