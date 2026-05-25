@@ -282,6 +282,11 @@ case "${LB_DERIVATIVE}" in
 						;;
 				esac
 
+				# If the git repository is cached, use that
+				if [ -d cache/debian-installer_git ]
+				then
+					cp -a --no-target-directory cache/debian-installer_git chroot/debian-installer
+				fi
 				# These variables do not need to be passed inside the chroot, they can be resolved earlier:
 				#   SOURCE_DATE_EPOCH, _QUIET, LB_PARENT_MIRROR_CHROOT, LB_PARENT_DISTRIBUTION_CHROOT
 				#   TARGETS, http_proxy
@@ -292,8 +297,11 @@ case "${LB_DERIVATIVE}" in
 set -e
 
 DEBIAN_INSTALLER=/debian-installer
-mkdir -p \${DEBIAN_INSTALLER}
-git clone https://salsa.debian.org/installer-team/debian-installer.git \${DEBIAN_INSTALLER} --single-branch --no-tags --quiet
+if [ ! -d \${DEBIAN_INSTALLER} ]
+then
+	mkdir -p \${DEBIAN_INSTALLER}
+	git clone https://salsa.debian.org/installer-team/debian-installer.git \${DEBIAN_INSTALLER} --single-branch --no-tags --quiet
+fi
 cd \${DEBIAN_INSTALLER}
 git checkout \$(git rev-list -n 1 --min-age=${SOURCE_DATE_EPOCH} HEAD) --quiet
 if [ "${_QUIET}" != "true" ]
