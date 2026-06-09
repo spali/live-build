@@ -193,8 +193,7 @@ parse_commandline_arguments() {
 	"cinnamon")
 		INSTALLER="live"
 		PACKAGES="live-task-cinnamon spice-vdagent"
-		# Oops: libreoffice is not properly installed
-		#   enforce libreoffice-core instead of libreoffice-core-nogui
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
 		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"gnome")
@@ -283,10 +282,14 @@ parse_commandline_arguments() {
 			# task-italian
 			PACKAGES="${PACKAGES} maint-guide-it-"
 		fi
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"kde")
 		INSTALLER="live"
 		PACKAGES="live-task-kde spice-vdagent"
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"lomiri")
 		INSTALLER="live"
@@ -294,18 +297,26 @@ parse_commandline_arguments() {
 		# see https://salsa.debian.org/live-team/live-tasks/-/merge_requests/14
 		PACKAGES="task-lomiri-desktop live-task-base calamares-settings-debian live-task-localisation live-task-localisation-desktop plymouth spice-vdagent spice-webdavd"
 		#PACKAGES="live-task-lomiri"
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"lxde")
 		INSTALLER="live"
 		PACKAGES="live-task-lxde spice-vdagent"
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"lxqt")
 		INSTALLER="live"
 		PACKAGES="live-task-lxqt spice-vdagent"
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"mate")
 		INSTALLER="live"
 		PACKAGES="live-task-mate spice-vdagent"
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"standard")
 		INSTALLER="live"
@@ -314,16 +325,22 @@ parse_commandline_arguments() {
 	"xfce")
 		INSTALLER="live"
 		PACKAGES="live-task-xfce spice-vdagent"
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"debian-junior")
 		INSTALLER="live"
 		PACKAGES="live-task-debian-junior spice-vdagent"
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"hamradio")
 		INSTALLER="none"
 		# Skipping the localisation packages
 		# Skipping: calamares-settings-debian -> it's not the time yet for the installer
 		PACKAGES="hamradio-all svxlink-calibration-tools- svxlink-gpio- svxlink-server- svxreflector- live-task-lxqt live-task-localisation- live-task-localisation-desktop- task-english calamares-settings-debian-"
+		# Workaround for #1139453: enforce libreoffice-core instead of libreoffice-core-nogui
+		PACKAGES="${PACKAGES} libreoffice-core-nogui-"
 		;;
 	"custom")
 		:
