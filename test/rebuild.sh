@@ -656,10 +656,12 @@ fi
 
 if [ ! -z "${PACKAGES}" ]; then
 	echo "${PACKAGES}" >config/package-lists/desktop.list.chroot
-	# Allow offline installation with speech enabled in the installed system #1112485
-	echo "espeakup" >config/package-lists/a11y_in_offline_installation.list.binary
-	# Allow offline installation with Braille support enabled in the installed system #1116525
-	echo "brltty" >>config/package-lists/a11y_in_offline_installation.list.binary
+	if [ "${INSTALLER}" != "none" ]; then
+		# Allow offline installation with speech enabled in the installed system #1112485
+		echo "espeakup" >config/package-lists/a11y_in_offline_installation.list.binary
+		# Allow offline installation with Braille support enabled in the installed system #1116525
+		echo "brltty" >>config/package-lists/a11y_in_offline_installation.list.binary
+	fi
 fi
 
 # Set meta information about the image
