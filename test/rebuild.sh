@@ -851,6 +851,13 @@ case "$DEBIAN_VERSION" in
 	;;
 esac
 
+# If a git checkout of debian-installer is found next to $LIVE_BUILD, use it
+if [ -d $LIVE_BUILD/../debian-installer/.git ]
+then
+	mkdir -p cache
+	git clone file:///${LIVE_BUILD}/../debian-installer cache/debian-installer_git
+fi
+
 # Build the image
 output_echo "Running lb build."
 
