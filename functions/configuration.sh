@@ -309,12 +309,12 @@ Prepare_config ()
 			else
 				LB_BOOTLOADER_BIOS="${LB_BOOTLOADER_BIOS:-syslinux}"
 			fi
-			if ! In_list "${LB_IMAGE_TYPE}" hdd netboot; then
+			if ! In_list "${LB_IMAGE_TYPE}" netboot; then
 				LB_BOOTLOADER_EFI="${LB_BOOTLOADER_EFI:-grub-efi}"
 			fi
 			;;
 		arm64)
-			if ! In_list "${LB_IMAGE_TYPE}" hdd netboot; then
+			if ! In_list "${LB_IMAGE_TYPE}" netboot; then
 				LB_BOOTLOADER_EFI="${LB_BOOTLOADER_EFI:-grub-efi}"
 			fi
 			;;
