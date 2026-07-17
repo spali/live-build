@@ -23,12 +23,16 @@ then
 		SUITENUMBER=12.13.0
 		OPENQA_GROUPID=19
 		BASIS_URL=https://get.debian.org/mirror/cdimage/archive/${SUITENUMBER}-live/amd64/iso-hybrid
+		# No debian-junior or lomiri for bookworm
+		SEQUENCE_TOP=8
 	else
 		BASIS_URL=https://get.debian.org/images/release/current-live/amd64/iso-hybrid
 		SUITE=stable
 		SUITECODENAME=trixie
 		SUITENUMBER=13.3.0
 		OPENQA_GROUPID=18
+		# No lomiri for trixie
+		SEQUENCE_TOP=9
 	fi
 	BUILD_SUFFIX="o"
 	ISO_INFIX="official"
@@ -39,17 +43,10 @@ else
 	OPENQA_GROUPID=23
 	BUILD_SUFFIX="w"
 	ISO_INFIX="weekly"
+	SEQUENCE_TOP=10
 fi
 
-if [ ${DO_BOOKWORM} -eq 1 ];
-then
-	# No Debian Junior for bookworm
-	SEQUENCE_TOP=8
-else
-	SEQUENCE_TOP=9
-fi
-
-rm SHA256SUMS
+rm -f SHA256SUMS
 sq download --quiet --batch --signature-url ${BASIS_URL}/SHA256SUMS.sign --url ${BASIS_URL}/SHA256SUMS --output SHA256SUMS
 
 for i in $(seq 1 ${SEQUENCE_TOP}); do
@@ -82,6 +79,9 @@ for i in $(seq 1 ${SEQUENCE_TOP}); do
 		9)
 			DESKTOP=debian-junior
 			FLAVOR=junior
+			;;
+		10)
+			DESKTOP=lomiri
 			;;
 	esac
 
