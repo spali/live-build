@@ -858,6 +858,14 @@ then
 	git clone file:///${LIVE_BUILD}/../debian-installer cache/debian-installer_git
 fi
 
+if [ "${CONFIGURATION}" = "lomiri" ]
+then
+	# Lomiri can run on tablets without external keyboards
+	# GRUB does not have touch device support, so a timeout is added
+	mkdir -p config/bootloaders/grub-pc
+	sed -e 's/@LINUX_LIVE@/@LINUX_LIVE@\nset timeout=30/' ${LIVE_BUILD}/share/bootloaders/grub-pc/grub.cfg > config/bootloaders/grub-pc/grub.cfg
+fi
+
 # Build the image
 output_echo "Running lb build."
 
