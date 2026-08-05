@@ -654,6 +654,14 @@ if [ ${MODIFY_APT_OPTIONS} -ne 0 ]; then
 	sed -i -e '/^APT_OPTIONS=/s/--yes/--yes -o Acquire::Check-Valid-Until=false/' config/common
 fi
 
+if [ "${DEBIAN_VERSION}" = "sid" ]; then
+	# Enable coredump and resolve the stack
+	echo "systemd-coredump gdb debuginfod" >config/package-lists/extra_debug_info.list.chroot
+	mkdir -p config/includes.chroot_after_packages/root
+	echo "set debuginfod enabled on" >config/includes.chroot_after_packages/root/.gdbinit
+	echo "set debuginfod urls https://debuginfod.debian.net" >>config/includes.chroot_after_packages/root/.gdbinit
+fi
+
 if [ ! -z "${PACKAGES}" ]; then
 	echo "${PACKAGES}" >config/package-lists/desktop.list.chroot
 	if [ "${INSTALLER}" != "none" ]; then
